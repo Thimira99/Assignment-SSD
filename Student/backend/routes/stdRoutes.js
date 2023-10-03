@@ -1,21 +1,34 @@
 const router = require("express").Router();
 const { Student, validate } = require("../models/student");
+const bcrypt = require("bcrypt");
 
 router.post("/", async (req, res) => {
   try {
+    // Validate the incoming request data to ensure it meets expected criteria.
     const { error } = validate(req.body);
     if (error) {
       return res.status(400).send({ message: error.details[0].message });
     }
 
+    // Check if a student with the provided email already exists in the database.
     const student = await Student.findOne({ email: req.body.email });
     if (student) {
       return res.status(200).send({ message: "User exist" });
     }
 
-    await new Student({ ...req.body }).save();
+    // Generate a salt for password hashing. The salt is a random value used to add complexity to the password hash.
+    const salt = await bcrypt.genSalt(Number(process.env.SALT));
+
+    // Hash the incoming password using bcrypt with the generated salt.
+    const hashPassword = await bcrypt.hash(req.body.password, salt);
+
+    // Save the student data to the database, including the hashed password.
+    await new Student({ ...req.body, password: hashPassword }).save();
+
+    // await new Student({ ...req.body }).save();
     res.status(201).send({ message: "Student Created" });
   } catch (error) {
+    // Handle any unexpected errors that may occur during this process.
     res.status(500).send({ message: "Server error" });
   }
 });
