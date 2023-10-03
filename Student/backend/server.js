@@ -10,6 +10,7 @@ require("./db/db");
 const bodyParser = require("body-parser");
 
 app.use(bodyParser.urlencoded({ extended: true }));
+
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -20,12 +21,6 @@ app.use(
     },
     referrerPolicy: { policy: "same-origin" },
     expectCt: { enforce: true, maxAge: 30 },
-    featurePolicy: {
-      features: {
-        fullscreen: ["'self'"],
-        geolocation: ["example.com"],
-      },
-    },
     hsts: {
       maxAge: 31536000,
       includeSubDomains: true,
