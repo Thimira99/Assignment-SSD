@@ -40,6 +40,7 @@ router.post("/", async (req, res) => {
           // if (student) {
           //     return res.status(200).send({ message: "User exist" });
           // }
+        {/* After fixing the XSS */}
         const student = await Student.findOne({ email: sanitizedEmail });
         if (student) {
             return res.status(200).send({ message: "User exist" });
@@ -56,7 +57,7 @@ router.post("/", async (req, res) => {
 
 })
 
- {/* Before Before fixing the CSRF */}
+ {/* Before fixing the CSRF */}
 // router.route("/get").get((req, res) => {
 //     Student.find().then((students) => {
 //         res.json(students);
