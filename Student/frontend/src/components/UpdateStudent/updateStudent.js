@@ -6,6 +6,8 @@ import profileCss from './updateStudent.module.css';
 import { useHistory } from 'react-router-dom'
 
 import axios from 'axios';
+import DOMPurify from 'dompurify';
+
 
 function UpdateStudent() {
 
@@ -32,6 +34,24 @@ function UpdateStudent() {
     function handleSubmit(e) {
         e.preventDefault();
 
+         // Sanitize user inputs to remove any HTML tags
+        const sanitizedStudentName = DOMPurify.sanitize(studentName);
+        const sanitizedStudentId = DOMPurify.sanitize(studentId);
+        const sanitizedEmail = DOMPurify.sanitize(email);
+        const sanitizedGender = DOMPurify.sanitize(gender);
+
+        // Check if sanitized inputs are different from the original inputs
+        if (
+            sanitizedStudentName !== studentName ||
+            sanitizedStudentId !== studentId ||
+            sanitizedEmail !== email ||
+            sanitizedGender !== gender
+        ) {
+            // Display an alert to the user
+            alert("Input cannot contain HTML tags.");
+            return; // Prevent form submission
+        }
+
         const newStudent = {
             studentName,
             studentId,
@@ -53,6 +73,7 @@ function UpdateStudent() {
 
     }
 
+
     function handleName(e) {
         setStudentNames(e.target.value)
     }
@@ -65,9 +86,7 @@ function UpdateStudent() {
     function handleGender(e) {
         setStudentGender(e.target.value)
     }
-
-
-
+    
     return (
         <div className='main-wrapper'>
             <div className='app-header'>

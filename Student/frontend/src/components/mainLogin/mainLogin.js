@@ -4,16 +4,31 @@ import login from './mainlogin.module.css';
 import axios from 'axios';
 import { useState } from 'react';
 import { Button, Dropdown } from 'react-bootstrap';
-
+import DOMPurify from 'dompurify';
 
 function MainLogin() {
     const history = useHistory();
 
 
     const [data, setData] = useState({
+        // Vulnerability: Stored XSS (Cross-Site Scripting)
         email: "",
         password: ""
     })
+
+    //XSS Vulnerability methods
+    //1. Stored XSS (Cross-Site Scripting)
+        // const data = '<img src="malicious-image.jpg" onerror="alert(\'Stored XSS Vulnerability\')">';
+        // const message = `Hello, ${userInput}!`;
+        // document.getElementById('output').innerHTML = message;
+    //2. Reflected XSS (Non-Persistent XSS):
+        // const data = '<img src="malicious-image.jpg" onerror="alert(\'Reflected XSS Vulnerability\')">';
+        // const url = `http://example.com/?input=${userInput}`;
+        // window.location.href = url;
+    //3. DOM-based XSS:
+        // const data = '<img src="malicious-image.jpg" onerror="alert(\'DOM-based XSS Vulnerability\')">';
+        // document.getElementById('output').innerHTML = userInput;
+
 
     //student
     const [studentid, setStudentid] = useState("");
@@ -122,7 +137,9 @@ function MainLogin() {
 
     });
 
-
+    // Fix: Sanitize user input before rendering it
+    const sanitizedEmail = DOMPurify.sanitize(data.email);
+    const sanitizedPassword = DOMPurify.sanitize(data.password);
 
     return (
         <div className={login.login_container}>
@@ -130,7 +147,9 @@ function MainLogin() {
                 <div className={login.left}>
                     <form className={login.form_container} onSubmit={handleSubmit}>
                         <h1>Log In</h1>
-                        <input
+                        {/* Before fixing the XSS
+                            Vulnerability: Rendering user input without sanitization */}
+                        {/* <input
                             type='text'
                             placeholder='Student Email'
                             name='email'
@@ -144,6 +163,26 @@ function MainLogin() {
                             placeholder='Password'
                             name='password'
                             value={data.password}
+                            onChange={handleChange}
+                            required
+                            className={login.input}
+                        /> */}
+
+                        {/* After fixing Stored XSS (Cross-Site Scripting) vulnerability. */}
+                        <input
+                            type='text'
+                            placeholder='Student Email'
+                            name='email'
+                            value={sanitizedEmail}
+                            onChange={handleChange}
+                            required
+                            className={login.input}
+                        />
+                        <input
+                            type='password'
+                            placeholder='Password'
+                            name='password'
+                            value={sanitizedPassword}
                             onChange={handleChange}
                             required
                             className={login.input}

@@ -1,5 +1,30 @@
 const router = require("express").Router();
 const Group = require("../models/groups");
+const csrf = require('csurf');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+
+// Initialize and configure csurf middleware
+const csrfProtection = csrf({ cookie: true });
+
+router.use(cookieParser());  
+router.use(bodyParser.urlencoded({ extended: true }));  
+ 
+router.use(csrfProtection);
+
+router.use((req, res, next) => {
+    if (req.path === '/csrf-token') {
+        
+        next();
+    } else {
+        csrfProtection(req, res, next);
+    }
+});
+
+// Create a route for fetching the CSRF token
+router.route('/csrf-token').get((req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+});
 
 router.route("/post").post((req, res) => {
     const { groupName, groupLeaderName, groupLeaderId, memberTwoName, memberTwoId, memberThreeName, memberThreeId, memberFourName, memberFourId } = req.body;
@@ -17,6 +42,11 @@ router.route("/post").post((req, res) => {
     });
 
     console.log(newGroup)
+
+    // Verify CSRF token before processing
+    if (req.csrfToken() !== req.body._csrf) {
+        return res.status(403).send('CSRF token mismatch.');
+    }
 
     newGroup.save().then(() => {
         res.status(200).send({ status: "Student Group Updated", student: newGroup });

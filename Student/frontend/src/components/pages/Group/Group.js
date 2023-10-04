@@ -22,6 +22,21 @@ function Group() {
     const [memberFourName, setmemberFourName] = useState("");
     const [memberFourId, setmemberFourId] = useState("");
 
+    //
+    const [csrfToken, setCsrfToken] = useState('');
+
+    useEffect(() => {
+        // Fetch the CSRF token from the server
+        axios
+            .get('http://localhost:8000/api/group/csrf-token')
+                .then((response) => {
+                    console.log("CSRF token fetched:", response.data.csrfToken);
+                    setCsrfToken(response.data.csrfToken);
+                })
+                .catch((error) => {
+                    console.error("Failed to fetch CSRF token:", error);
+                });
+    }, []);
 
     function onSubmit(e) {
         e.preventDefault();
@@ -35,7 +50,8 @@ function Group() {
             memberThreeName,
             memberThreeId,
             memberFourName,
-            memberFourId
+            memberFourId,
+            _csrf: csrfToken, 
         }
 
         axios.post("http://localhost:8000/api/group/post", newGroup).then((res) => {
@@ -161,6 +177,8 @@ function Group() {
 
 
                                     </div>
+                                    {/* csrf token */}
+                                    <input type="hidden" name="_csrf" value={csrfToken} />
                                     <div className={groupStyles.submitButton}>
                                         <button type="submit" className="btn btn-primary">Submit</button>
                                     </div>
